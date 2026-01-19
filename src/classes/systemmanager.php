@@ -28,11 +28,11 @@ if(!class_exists('systemmanager'))
 			$res=$this->mysqlconn->query($qry);
 			//$row=mysql_fetch_array($res);
 			$row=$res->fetch_assoc();
-			$return_value=$row['s_value'];
+			$return_value = $row['s_value'] ?? '';
 			
 			if($return_value=='')
 			{
-				return $this->defaults[$setting];
+				return $this->defaults[$setting] ?? '';
 			} else {
 				return $return_value;
 			}
@@ -45,7 +45,8 @@ if(!class_exists('systemmanager'))
 			$res=$this->mysqlconn->query($qry);
 			//$row=mysql_fetch_array($res);
 			$row=$res->fetch_assoc();
-			if($row['cnt']>0)
+			$count = $row['cnt'] ?? 0;
+			if($count>0)
 			{
 				$qry='UPDATE settings SET s_value="'.$this->mysqlconn->real_escape_string($value).'" WHERE setting="'.$this->mysqlconn->real_escape_string($setting).'"';
 			} else {
