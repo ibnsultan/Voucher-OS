@@ -25,7 +25,7 @@ class adminauth
 		//mysql_select_db(MYSQL_DB,$this->mysqlconn);
 		$this->mysqlconn=new mysqli(MYSQL_HOST,MYSQL_USER,MYSQL_PWD,MYSQL_DB);
 		
-		if(trim($_POST['user'])!='' && trim($_POST['pwd'])!='') // Got credentials from form - new user
+		if(isset($_POST['user']) && isset($_POST['pwd']) && trim($_POST['user'])!='' && trim($_POST['pwd'])!='') // Got credentials from form - new user
 		{
 			// Get and check password
 			//$res=mysql_query('SELECT username,pwd FROM users WHERE username="'.$_POST['user'].'"',$this->mysqlconn);
@@ -41,7 +41,7 @@ class adminauth
 				setcookie('LastUsername', $row['username'], time()+31536000); // Remeber username for next login
 			}
 		} else {
-			if(trim($_SESSION['login'])=='') // Is there an active session?
+			if(!isset($_SESSION['login']) || trim($_SESSION['login'])=='') // Is there an active session?
 			{
 				$this->auth_ok=false; // No active session, user has to login first
 			} else {
@@ -86,7 +86,7 @@ class adminauth
 				<form action="'.$_SERVER['PHP_SELF'].'" method="post">
 				<table border="0">
 				<td>Username:</td>
-				<td><input type="text" name="user" value="'.$_COOKIE['LastUsername'].'" class="formstyle"></td>
+				<td><input type="text" name="user" value="'.($_COOKIE['LastUsername'] ?? '').'" class="formstyle"></td>
 				</tr><tr>
 				<td>Password:</td>
 				<td><input type="password" name="pwd" class="formstyle">
@@ -130,6 +130,9 @@ class adminauth
 	
 	public function CheckPermission($permission) // Check if the logged in user has a specific permission
 	{
+		if(!isset($_SESSION['login'])) {
+			return false;
+		}
 		//$res=mysql_query('SELECT COUNT(*) AS cnt FROM permissions WHERE username="'.$_SESSION['login'].'" AND permission="all"',$this->mysqlconn);
 		$qry='SELECT COUNT(*) AS cnt FROM permissions WHERE username="'.$this->mysqlconn->real_escape_string($_SESSION['login']).'" AND permission="all"';
 		//$row=mysql_fetch_array($res);
@@ -155,7 +158,7 @@ class adminauth
 	
 	public function GetUsername()
 	{
-		return $_SESSION['login'];
+		return $_SESSION['login'] ?? '';
 	}
 }
 ?>
